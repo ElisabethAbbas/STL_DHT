@@ -4,21 +4,23 @@ import java.util.HashMap;
 
 public class DHT_administrator {
 	protected HashMap<Integer, String> uris;//for later, link node index to JVM uri
-	protected int size;//maybe useless?
+	protected int size;
 	protected int nbNodes;
 	protected DHT_node[] ring;//choisir entre liste et tableau.
 	//protected ArrayList<DHT_node> ring;//choisir entre liste et tableau.
 	
 	public DHT_administrator (int size, HashMap<Integer, String> nodes){//constructeur avec uris des JVM et index desires dans la DHT, pour l'instant noms et index des nodes
-		this.size = size;//maybe useless?
+		this.size = size;
 		nbNodes=0;
 		ring=new DHT_node[size];
 		for(int i=0;i<size;i++){
-			ring[i]=new DHT_node(-1);
+			// /!\ on considère que size est une puissance de 2, sinon arrondir au-dessus.
+			ring[i]=new DHT_node(-1, new FingerTable(1>>size)); 
 		}
 		uris = nodes;
 		for (int ind : nodes.keySet()) {
-			ring[ind]=new DHT_node(ind);
+			// /!\ on considère que size est une puissance de 2, sinon arrondir au-dessus.
+			ring[ind]=new DHT_node(ind, new FingerTable(1>>size)); 
 			nbNodes++;
 		}
 		//initialisation ses bons liens de pred et succ
@@ -39,7 +41,7 @@ public class DHT_administrator {
 				}
 			}
 		}
-		if((first!=-1)&&(first!=tmp)){//on exclut le  cas o� 0 ou 1 seule node
+		if((first!=-1)&&(first!=tmp)){//on exclut le  cas où 0 ou 1 seule node
 			ring[first].setPred(ring[tmp]);
 			ring[tmp].setSucc(ring[first]);
 		}
@@ -48,6 +50,7 @@ public class DHT_administrator {
 	public DHT_node[] getRing(){
 		return ring;
 	}
+	
 	public void join(DHT_node n){
 		int tmp=n.getIndex();
 		ring[tmp]=n;

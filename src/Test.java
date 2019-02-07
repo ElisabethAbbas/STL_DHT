@@ -8,8 +8,8 @@ public class Test {
 		h.put(9, "node3");
 		h.put(10, "node4");
 		h.put(8, "node5");
-		DHT_administrator a=new DHT_administrator(15, h);
-		DHT_node n=new DHT_node(3);
+		DHT_administrator a=new DHT_administrator(16, h); // j'ai remplacé 15 par 16 pour que ce soit une puissance de 2
+		DHT_node n=new DHT_node(3, new FingerTable(1>>(16))); // correspond à log2(15), c'est le m de n=2^m dans le poly
 		a.join(n);
 		System.out.println(a);
 		n.stabilisation();
