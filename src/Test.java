@@ -9,12 +9,17 @@ public class Test {
 		h.put(10, "node4");
 		h.put(8, "node5");
 		DHT_administrator a=new DHT_administrator(16, h); // j'ai remplacé 15 par 16 pour que ce soit une puissance de 2
-		DHT_node n=new DHT_node(3, new FingerTable(1>>(16))); // correspond à log2(15), c'est le m de n=2^m dans le poly
+		
+		DHT_node n=new DHT_node(3, 16); // correspond à log2(15), c'est le m de n=2^m dans le poly
+		FingerTable.initialize(a, n);
 		a.join(n);
 		System.out.println(a);
+		System.out.println(n.ft);
 		n.stabilisation();
 		System.out.println(a);
 		a.getRing()[1].stabilisation();
 		System.out.println(a);
+		n.fixFingers();
+		System.out.println(n.ft);
 	}
 }

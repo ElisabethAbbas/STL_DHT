@@ -15,14 +15,15 @@ public class DHT_administrator {
 		ring=new DHT_node[size];
 		for(int i=0;i<size;i++){
 			// /!\ on considère que size est une puissance de 2, sinon arrondir au-dessus.
-			ring[i]=new DHT_node(-1, new FingerTable(1>>size)); 
+			ring[i]=new DHT_node(-1, size); 
 		}
 		uris = nodes;
 		for (int ind : nodes.keySet()) {
 			// /!\ on considère que size est une puissance de 2, sinon arrondir au-dessus.
-			ring[ind]=new DHT_node(ind, new FingerTable(1>>size)); 
+			ring[ind]=new DHT_node(ind, size); 
 			nbNodes++;
 		}
+		
 		//initialisation ses bons liens de pred et succ
 		ArrayList<Integer> sortedIndex=new ArrayList<Integer>(nodes.keySet());
 		Collections.sort(sortedIndex);
@@ -46,6 +47,11 @@ public class DHT_administrator {
 			ring[tmp].setSucc(ring[first]);
 		}
 		
+		for(int i=0; i<ring.length; i++) {
+			if(ring[i].getIndex()!=-1) {
+				FingerTable.initialize(this, ring[i]);
+			}
+		}
 	}
 	public DHT_node[] getRing(){
 		return ring;

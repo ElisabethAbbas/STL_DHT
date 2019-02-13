@@ -6,16 +6,16 @@ public class DHT_node {
 	protected DHT_node succ;
 	protected FingerTable ft; 
 	protected ArrayList<String> elts;//elements dans la node (JVM plus tard), eventuellement changer le type, uri, ou alors indexes mais dans ce cas ajouter une variable hashmap qui link les index aux uris des components
-
-	// ou passer la FingerTable en paramètre, 
-	// ou passer la size de la ring, au choix
-	public DHT_node(int index, FingerTable ft){
+	private int ringSize;
+	
+	public DHT_node(int index, int ringSize){
 		this.index = index;
 		this.pred = null;
 		this.succ = null;
-		this.ft = ft;
+		this.ft = new FingerTable((int)(Math.log(ringSize)/Math.log(2)), this);
 		this.elts = new ArrayList<String>();
 		//appel a une methode style clock qui appelle stabilisation periodiquement, decider comment implementer
+		this.ringSize=ringSize;
 	}
 
 	public void setPred(DHT_node n){
@@ -39,10 +39,11 @@ public class DHT_node {
 
 	// ask node n to find the successor of id
 	public DHT_node findSuccessor(int id) {
-		if (getPred() != null && (id > pred.getIndex() 
-				&& id < getIndex())) 
+		if (getPred() != null 
+				&& (id >= pred.getIndex() 
+				&& id <= index)) 
 			return this;
-		else if (id > index && index > succ.getIndex())
+		else if (id >= index && id <= succ.getIndex())
 			return succ;
 		else { // forward the query around the circle
 			DHT_node m = closestPrecedingNode(id);
@@ -52,9 +53,9 @@ public class DHT_node {
 
 	// search locally for the highest predecessor of id
 	private DHT_node closestPrecedingNode(int id) {
-		for (int i = ft.getSize(); i > 0; i++)
-			if (ft.getFinger()[i].getIndex() > index 
-					&& ft.getFinger()[i].getIndex() < id) 
+		for (int i = ft.getSize()-1; i >= 0; i--)
+			if (ft.getFinger()[i].getIndex() >= index 
+					&& ft.getFinger()[i].getIndex() <= id) 
 				return ft.getFinger()[i];
 		return this;
 	}
@@ -77,7 +78,7 @@ public class DHT_node {
 		ft.setNext(ft.getNext()+1);
 		if (ft.getNext() > ft.getSize()) 
 			ft.setNext(1);
-		ft.getFinger()[ft.getNext()] = findSuccessor(index^(1<<(ft.getNext()-1)));
+		ft.getFinger()[ft.getNext()] = findSuccessor(((index-1)^(1<<(ft.getNext()-1)))%ringSize);
 	}
 
 	public String toString(){
@@ -92,6 +93,8 @@ public class DHT_node {
 		if(succ!=null){
 			s+=", succ : "+succ.getIndex();
 		}
+		
+		//s+=", "+ft;
 		return s;
 	}
 	//a faire : methode equals
