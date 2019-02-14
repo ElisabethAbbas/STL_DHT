@@ -20,6 +20,8 @@ public class Test {
 		a.getRing()[1].stabilisation();
 		System.out.println(a);
 		n.fixFingers();
+		a.getRing()[1].fixFingers();
+		//a.getRing()[2].fixFingers();
 		System.out.println(n.ft);
 	}
 }
